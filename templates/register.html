@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register and Verify User</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Register and Verify User</h1>
+    <div id="registerForm">
+        <h2>Register</h2>
+        <form id="registrationForm">
+            <label for="phone">Phone:</label><br>
+            <input type="tel" id="phone" name="phone"><br>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email"><br>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="verificationForm">
+                <label for="code">Enter Code:</label><br>
+                <input type="text" id="code" name="code"><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var token = localStorage.getItem("token");
+            if (token) {
+                // Перенаправление на страницу home, если токен уже существует
+                window.location.href = "/home";
+            }
+
+            // Функция для отправки POST запроса на регистрацию пользователя
+            function registerUser(data) {
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:8000/api/v1/accounts/register/",
+                    data: data,
+                    success: function(response) {
+                        openModal(); // Открыть модальное окно для ввода кода
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
+                        // Обработка ошибки (например, вывод сообщения об ошибке)
+                    }
+                });
+            }
+
+            // Функция для отправки POST запроса на верификацию кода
+            function verifyCode(code) {
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:8000/api/v1/accounts/auth/" + code,
+                    success: function(response) {
+                        var token = response.token;
+                        console.log("Token:", token);
+                        // Сохранение токена в localStorage
+                        localStorage.setItem("token", token);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
+                        // Обработка ошибки (например, вывод сообщения об ошибке)
+                    }
+                });
+            }
+
+            // Функция для открытия модального окна
+            function openModal() {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "block";
+            }
+
+            // Обработка закрытия модального окна
+            $(".close").click(function() {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "none";
+            });
+
+            // Обработка отправки формы регистрации
+            $("#registrationForm").submit(function(event) {
+                event.preventDefault();
+                var formData = {
+                    phone: $("#phone").val(),
+                    email: $("#email").val()
+                    // Добавьте другие поля, если необходимо
+                };
+                registerUser(formData);
+            });
+
+            // Обработка отправки формы верификации кода
+            $("#verificationForm").submit(function(event) {
+                event.preventDefault();
+                var code = $("#code").val();
+                verifyCode(code);
+            });
+        });
+    </script>
+</body>
+</html>
