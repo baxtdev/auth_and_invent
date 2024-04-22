@@ -17,10 +17,8 @@
 
     <script>
         $(document).ready(function() {
-            // Проверка наличия токена в localStorage
             var token = localStorage.getItem("token");
             if (token) {
-                // Отправка запроса для получения информации о пользователе
                 $.ajax({
                     type: "GET",
                     url: "http://127.0.0.1:8000/api/v1/accounts/profile/",
@@ -34,13 +32,10 @@
                     },
                     error: function(xhr, status, error) {
                         console.error("Error:", error);
-                        // Обработка ошибки (например, вывод сообщения об ошибке)
                     }
                 });
             } else {
-                // Если токен отсутствует, перенаправляем на страницу входа или выдаем предупреждение
                 alert("Please login to view your profile.");
-                // window.location.href = "/login"; // Раскомментируйте эту строку, чтобы перенаправить пользователя на страницу входа
             }
         });
     </script>
